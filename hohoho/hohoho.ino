@@ -4,14 +4,7 @@
 #include "Adafruit_LEDBackpack.h"
 #include "Adafruit_GFX.h"
 
-#define DEBUG
-
-// CHANGE THESE THINGS
-const int delayTime = 1; // Millis between loops, determines failure proc rate
-
-const int failureChance = 2; // One in this many seconds has a chance of failure
-const int maxSecsToFail = 2; // Maximum length of failures
-// END OF THINGS TO CHANGE
+//#define DEBUG
 
 // Interrupts
 
@@ -44,18 +37,53 @@ void readTwo() {
   }
 }
 
-const int failureRand = failureChance * (1000 / delayTime);
-const int maxCyclesToFail = maxSecsToFail * (1000 / delayTime);
+// CHANGE THESE THINGS
+const int delayTime = 1; // Millis between loops, determines failure proc rate
+
+#ifdef DEBUG
+const int failureChance = 2000; // One in this many milliseconds has a chance of failure
+#else
+const int failureChance = 30000; // One in this many milliseconds has a chance of failure
+#endif
+const int maxSecsToFail = 2000; // Maximum length of failures in milliseconds
+// END OF THINGS TO CHANGE
+
+const int failureRand = failureChance / delayTime;
+const int maxCyclesToFail = maxSecsToFail / delayTime;
 
 void (*failures[]) (void) = {
   flickerFailure,
+  flickerFailure,
+  flickerFailure,
+  flickerFailure,
+  flickerFailure,
+  flickerFailure,
+  flickerFailure,
+  invertFailure,
+  invertFailure,
+  invertFailure,
+  invertFailure,
   invertFailure,
   flickerOut,
+  flickerOut,
+  flickerOut,
+  flickerOut,
+  flickerOut,
   flickerSegmentOut,
+  flickerSegmentOut,
+  flickerSegmentOut,
+  flickerSegmentOut,
+  flickerSegmentOut,
+  upsideDown,
+  leftRight,
+  upsideDown,
+  leftRight,
+  upsideDown,
+  leftRight,
+  chase,
   chase,
   skyscraper,
-  upsideDown,
-  leftRight
+  deadBeef
 };
 const int totalFailures = sizeof(failures) / sizeof(failures[0]);
 void (*failureFunction)(void);
@@ -132,6 +160,8 @@ void setup() {
   matrix.setBrightness(4);
 #endif
 
+  pinMode(13, OUTPUT);
+
   randomSeed(analogRead(0));
 
   pinMode(pinOne, INPUT);
@@ -168,6 +198,8 @@ void startFailure() {
 #ifdef DEBUG
   digitMasks[2] = 2;
 #endif
+  digitalWrite(13, HIGH);
+
   randomDigit(&failureDigit);
   failureFunction = failures[random(0, totalFailures)];
   failureCycles = 1;
@@ -183,6 +215,8 @@ void endFailure() {
 #ifdef DEBUG
   digitMasks[2] = 0;
 #endif
+  digitalWrite(13, LOW);
+
   failureCycles = 0;
   failureDigit = 2;
   flickerSegment = 0;
@@ -257,6 +291,20 @@ void leftRight() {
   newMask = newMask | (mask & 0x20) >> 4;
   newMask = newMask | (mask & 0x10) >> 2;
   digitMasks[failureDigit] = newMask;
+}
+
+void deadBeef() {
+  if ((double)failureCycles / maxCyclesToFail < 0.5) {
+    digitMasks[0] = numbertable[0x0D];
+    digitMasks[1] = numbertable[0x0E];
+    digitMasks[3] = numbertable[0X0A];
+    digitMasks[4] = numbertable[0x0D];
+  } else {
+    digitMasks[0] = numbertable[0x0B];
+    digitMasks[1] = numbertable[0x0E];
+    digitMasks[3] = numbertable[0X0E];
+    digitMasks[4] = numbertable[0x0F];
+  }
 }
 
 

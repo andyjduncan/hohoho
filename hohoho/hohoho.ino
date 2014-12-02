@@ -17,22 +17,18 @@ volatile long lastDebounceTwo = 0;
 volatile int countOne = 0;
 volatile int countTwo = 0;
 
-const long debounceDelay = 100;    // the debounce time
+const long debounceDelay = 250;    // the debounce time
 
 void readOne() {
   if ((millis() - lastDebounceOne) > debounceDelay) {
-    if (digitalRead(pinOne) == HIGH) {
-      countOne++;
-    }
+    countOne++;
     lastDebounceOne = millis();
   }
 }
 
 void readTwo() {
   if ((millis() - lastDebounceTwo) > debounceDelay) {
-    if (digitalRead(pinTwo) == HIGH) {
-      countTwo++;
-    }
+    countTwo++;
     lastDebounceTwo = millis();
   }
 }
@@ -43,7 +39,7 @@ const int delayTime = 1; // Millis between loops, determines failure proc rate
 #ifdef DEBUG
 const int failureChance = 2000; // One in this many milliseconds has a chance of failure
 #else
-const int failureChance = 30000; // One in this many milliseconds has a chance of failure
+const int failureChance = 20000; // One in this many milliseconds has a chance of failure
 #endif
 const int maxSecsToFail = 2000; // Maximum length of failures in milliseconds
 // END OF THINGS TO CHANGE
@@ -166,8 +162,8 @@ void setup() {
 
   pinMode(pinOne, INPUT);
   pinMode(pinTwo, INPUT);
-  attachInterrupt(0, readOne, CHANGE);
-  attachInterrupt(1, readTwo, CHANGE);
+  attachInterrupt(0, readOne, RISING);
+  attachInterrupt(1, readTwo, RISING);
 }
 
 void loop() {

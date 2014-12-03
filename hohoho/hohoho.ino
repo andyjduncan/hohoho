@@ -21,14 +21,14 @@ const long debounceDelay = 250;    // the debounce time
 
 void readOne() {
   if ((millis() - lastDebounceOne) > debounceDelay) {
-    countOne++;
+    countOne = ++countOne % 100;
     lastDebounceOne = millis();
   }
 }
 
 void readTwo() {
   if ((millis() - lastDebounceTwo) > debounceDelay) {
-    countTwo++;
+    countTwo = ++countTwo % 100;
     lastDebounceTwo = millis();
   }
 }
